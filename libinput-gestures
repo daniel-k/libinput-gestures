@@ -100,22 +100,26 @@ class SWIPE(GESTURE):
         'Initialise this gesture at the start of motion'
         self.fingers = fingers
         self.data = [0.0, 0.0]
+        self.fired = False
 
     def update(self, coords):
         'Update this gesture for a motion'
         self.data[0] += float(coords[2])
         self.data[1] += float(coords[3])
 
-    def end(self):
-        'Action this gesture at the end of a motion sequence'
-        # Require movement beyond a small threshhold.
-        if abs(self.data[0] - self.data[1]) >= 70:
+        if abs(self.data[0] - self.data[1]) >= 150 and not self.fired:
             if abs(self.data[0]) > abs(self.data[1]):
                 motion = 'left' if self.data[0] < 0 else 'right'
             else:
                 motion = 'up' if self.data[1] < 0 else 'down'
-
+            self.fired = True
             self.action(motion)
+
+    def end(self):
+        'Action this gesture at the end of a motion sequence'
+        # Require movement beyond a small threshhold.
+        if args.verbose:
+            print("Swipe distance: %f" % abs(self.data[0] - self.data[1]))
 
 class PINCH(GESTURE):
     'Class to handle this type of gesture'
